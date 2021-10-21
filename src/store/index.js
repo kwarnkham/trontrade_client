@@ -1,6 +1,7 @@
 import { store } from "quasar/wrappers";
 import { createStore } from "vuex";
-
+import { LocalStorage } from "quasar";
+import { api } from "src/boot/axios";
 // import example from './module-example'
 
 /*
@@ -14,6 +15,38 @@ import { createStore } from "vuex";
 
 export default store(function (/* { ssrContext } */) {
   const Store = createStore({
+    state: {
+      token: null,
+      user: null,
+    },
+    mutations: {
+      setToken(state, token) {
+        if (token) {
+          api.defaults.headers.common["Authorization"] = "Bearer " + token;
+          try {
+            LocalStorage.set("token", token);
+          } catch (error) {
+            console.error(error);
+          }
+        } else {
+          LocalStorage.remove("token");
+          api.defaults.headers.common["Authorization"] = undefined;
+        }
+        state.token = token;
+      },
+      setUser(state, user) {
+        if (user) {
+          try {
+            LocalStorage.set("user", user);
+          } catch (error) {
+            console.error(error);
+          }
+        } else {
+          LocalStorage.remove("user");
+        }
+        state.user = user;
+      },
+    },
     modules: {
       // example
     },

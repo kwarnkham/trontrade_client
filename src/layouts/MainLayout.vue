@@ -11,21 +11,39 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
+        <q-toolbar-title> Tron Trade</q-toolbar-title>
+        <q-btn
+          v-if="token"
+          color="warning"
+          flat
+          dense
+          round
+          icon="logout"
+          aria-label="Logout"
+          @click="logout"
+        />
       </q-toolbar>
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label header> Essential Links </q-item-label>
-
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
+        <q-item
+          clickable
+          v-ripple
+          v-for="menuItem in menuItems"
+          :key="menuItem.routeName"
+          @click="$router.push({ name: menuItem.routeName })"
+        >
+          <q-item-section
+            class="text-center text-weight-bolder"
+            :class="{
+              'bg-primary rounded-borders text-white':
+                $route.name == menuItem.routeName,
+            }"
+          >
+            {{ menuItem.name }}
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
@@ -36,72 +54,54 @@
 </template>
 
 <script>
-import EssentialLink from "components/EssentialLink.vue";
-
-const linksList = [
+import { ref, computed } from "vue";
+import useAuth from "src/composables/useAuth";
+import { useStore } from "vuex";
+import { useQuasar } from "quasar";
+const menuItems = [
   {
-    title: "Docs",
-    caption: "quasar.dev",
-    icon: "school",
-    link: "https://quasar.dev",
+    name: "Home",
+    routeName: "home",
   },
   {
-    title: "Github",
-    caption: "github.com/quasarframework",
-    icon: "code",
-    link: "https://github.com/quasarframework",
+    name: "User",
+    routeName: "user",
   },
   {
-    title: "Discord Chat Channel",
-    caption: "chat.quasar.dev",
-    icon: "chat",
-    link: "https://chat.quasar.dev",
+    name: "Login",
+    routeName: "login",
   },
   {
-    title: "Forum",
-    caption: "forum.quasar.dev",
-    icon: "record_voice_over",
-    link: "https://forum.quasar.dev",
-  },
-  {
-    title: "Twitter",
-    caption: "@quasarframework",
-    icon: "rss_feed",
-    link: "https://twitter.quasar.dev",
-  },
-  {
-    title: "Facebook",
-    caption: "@QuasarFramework",
-    icon: "public",
-    link: "https://facebook.quasar.dev",
-  },
-  {
-    title: "Quasar Awesome",
-    caption: "Community Quasar projects",
-    icon: "favorite",
-    link: "https://awesome.quasar.dev",
+    name: "Register",
+    routeName: "register",
   },
 ];
-
-import { defineComponent, ref } from "vue";
-
-export default defineComponent({
+export default {
   name: "MainLayout",
-
-  components: {
-    EssentialLink,
-  },
 
   setup() {
     const leftDrawerOpen = ref(false);
-
+    const { signOut } = useAuth();
+    const { dialog } = useQuasar();
+    const logout = () => {
+      dialog({
+        title: "Confirm",
+        message: "Would you like to logout?",
+        cancel: true,
+        persistent: true,
+      }).onOk(signOut);
+    };
+    const store = useStore();
+    const token = computed(() => store.state.token);
     return {
-      essentialLinks: linksList,
       leftDrawerOpen,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
+      menuItems,
+      logout,
+      token,
     };
   },
-});
+};
 </script>

@@ -2,9 +2,10 @@
   <router-view />
 </template>
 <script>
-import { defineComponent } from "vue";
-
-export default defineComponent({
+export default {
   name: "App",
-});
+  created() {
+    // console.log(process.env.API);
+  },
+};
 </script>

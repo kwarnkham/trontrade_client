@@ -21,7 +21,7 @@ module.exports = configure(function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/boot-files
-    boot: ["i18n", "axios"],
+    boot: ["bootstrap", "auth", "i18n", "axios"],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: ["app.scss"],
@@ -42,7 +42,10 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
-      vueRouterMode: "hash", // available values: 'hash', 'history'
+      env: {
+        API: ctx.dev ? "http://127.0.0.1:8000/api" : "https://prod.api.com",
+      },
+      vueRouterMode: "history", // available values: 'hash', 'history'
 
       // transpile: false,
       // publicPath: '/',
@@ -92,7 +95,7 @@ module.exports = configure(function (ctx) {
       // directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: ["Loading", "LocalStorage", "Notify", "Dialog"],
     },
 
     // animations: 'all', // --- includes all animations
