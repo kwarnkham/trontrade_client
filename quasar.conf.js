@@ -10,6 +10,23 @@
 const ESLintPlugin = require("eslint-webpack-plugin");
 const { configure } = require("quasar/wrappers");
 
+const defaultProfile = "development";
+const profile = process.env.PROFILE ?? defaultProfile;
+console.log("Active environment is " + profile);
+const environmentVariables = {
+  development: {
+    API: "http://127.0.0.1:8000/api",
+    TRON_API: "https://api.shasta.trongrid.io",
+    TRON_API_KEY: undefined,
+  },
+  staging: {
+    API: "https://prod.api.com",
+    TRON_API: "https://api.trongrid.io",
+    TRON_API_KEY: "747f1d4f-de2d-4393-929a-bf99019dbaa4",
+  },
+};
+console.log("Using the following environment variables.");
+console.log(environmentVariables[profile]);
 module.exports = configure(function (ctx) {
   return {
     // https://quasar.dev/quasar-cli/supporting-ts
@@ -42,9 +59,7 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
-      env: {
-        API: ctx.dev ? "http://127.0.0.1:8000/api" : "https://prod.api.com",
-      },
+      env: environmentVariables[profile],
       vueRouterMode: "history", // available values: 'hash', 'history'
 
       // transpile: false,
