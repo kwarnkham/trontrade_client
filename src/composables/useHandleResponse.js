@@ -36,7 +36,22 @@ export default function useHandleResponse() {
     }
   };
 
+  const handleTronResponse = (e) => {
+    console.error(e);
+    if (e.response) {
+      if (e.response.status == 400) {
+        notify({
+          message: e.response.data.error,
+          type: "negative",
+        });
+      } else {
+        notify(e.response.status);
+      }
+    }
+  };
+
   return {
     handleResponse,
+    handleTronResponse,
   };
 }

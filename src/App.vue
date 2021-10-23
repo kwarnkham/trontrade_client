@@ -2,8 +2,19 @@
   <router-view />
 </template>
 <script>
+import useTronApi from "src/composables/useTronApi";
 export default {
   name: "App",
+  setup() {
+    const { getAccountInfoByAddress } = useTronApi();
+    getAccountInfoByAddress("TDeeUerUt6V3nZWS7Cko3WzT1WKVTgtsLJ")
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((e) => {
+        console.warn(e.response);
+      });
+  },
   created() {
     // this.$tronApi({
     //   method: "POST",
