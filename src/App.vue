@@ -1,33 +1,70 @@
 <template>
-  <router-view />
+  <!-- <router-view /> -->
+  <div @click="connect">connect</div>
 </template>
 <script>
-import useTronApi from "src/composables/useTronApi";
+//npm i laravel-echo pusher-js
+import Echo from "laravel-echo";
+window.Pusher = require("pusher-js");
+import axios from "axios";
+
 export default {
   name: "App",
-  setup() {
-    const { getAccountInfoByAddress } = useTronApi();
-    getAccountInfoByAddress("TDeeUerUt6V3nZWS7Cko3WzT1WKVTgtsLJ")
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((e) => {
-        console.warn(e.response);
+  methods: {
+    connect() {
+      const wsHost = "localhost";
+      const token = "2|79BCz4WS4X8vvP8eG5I1POXGDPdRdTzpj4kqGuTb";
+      const authEndpoint = "http://127.0.0.1:8000/api/broadcasting/auth";
+      window.Echo = new Echo({
+        broadcaster: "pusher",
+        key: "TRON_PUSHER_APP_KEY",
+        wsHost,
+        wsPort: 6001,
+        forceTLS: false,
+        disableStats: true,
+        authorizer: (channel, options) => {
+          return {
+            authorize: (socketId, callback) => {
+              axios
+                .post(
+                  authEndpoint,
+                  {
+                    socket_id: socketId,
+                    channel_name: channel.name,
+                  },
+                  {
+                    headers: { Authorization: `Bearer ${token}` },
+                  }
+                )
+                .then((response) => {
+                  callback(false, response.data);
+                })
+                .catch((error) => {
+                  callback(true, error);
+                });
+            },
+          };
+        },
       });
-  },
-  created() {
-    // this.$tronApi({
-    //   method: "POST",
-    //   url: "/wallet/createtransaction",
-    //   data: {
-    //     to_address: "41e9d79cc47518930bc322d9bf7cddd260a0260a8d",
-    //     owner_address: "41D1E7A6BC354106CB410E65FF8B181C600FF14292",
-    //     amount: 1000,
-    //   },
-    // }).then((response) => {
-    //   console.log(response);
-    // });
-    // console.log(process.env.BUILD);
+      //listen for connected status
+      window.Echo.connector.pusher.connection.bind("connected", (e) => {
+        console.log("connected", e);
+        const walletId = 1;
+
+        //subscription
+        window.Echo.private(`Tron.${walletId}` /* Channel name */).listen(
+          "TronBalanceUpdated" /* Event name */,
+          (e) => {
+            console.log(e);
+          }
+        );
+      });
+      return window.Echo;
+
+      //read more about laravel-echo at https://laravel.com/docs/8.x/broadcasting#listening-for-events
+      //read mroe about pushjs at https://pusher.com/docs/channels/using_channels/client-api-overview/?ref=docs-index
+      //https://github.com/pusher/pusher-js
+    },
   },
 };
 </script>
