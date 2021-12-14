@@ -13,14 +13,22 @@ export default {
   methods: {
     connect() {
       const wsHost = "localhost";
-      const token = "2|79BCz4WS4X8vvP8eG5I1POXGDPdRdTzpj4kqGuTb";
+      const wsPort = 6001;
       const authEndpoint = "http://127.0.0.1:8000/api/broadcasting/auth";
+      const forceTLS = false;
+
+      // const wsHost = "socket.jfweb1.xyz";
+      // const wsPort = 443;
+      // const authEndpoint = "https://tron.jfweb1.xyz/api/broadcasting/auth";
+      // const forceTLS = true;
+
+      const token = "2|HmbxWTkxhFI8bCw5f1agS0CRGuPIfr0iLV66MoFk";
       window.Echo = new Echo({
         broadcaster: "pusher",
         key: "TRON_PUSHER_APP_KEY",
         wsHost,
-        wsPort: 6001,
-        forceTLS: false,
+        wsPort,
+        forceTLS,
         disableStats: true,
         authorizer: (channel, options) => {
           return {
